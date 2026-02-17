@@ -2,17 +2,17 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>FuturePath AI</title>
+<title>FuturePath AI V2</title>
 <style>
 body {
   font-family: Arial;
   background: linear-gradient(135deg,#0f172a,#1e293b);
   color:white;
   text-align:center;
-  padding:40px;
+  padding:30px;
 }
 .container {
-  max-width:600px;
+  max-width:700px;
   margin:auto;
   background:#111827;
   padding:30px;
@@ -31,30 +31,50 @@ button {
   color:white;
   cursor:pointer;
 }
-.plan {
-  margin-top:20px;
+.dashboard {
+  margin-top:30px;
   background:#1e293b;
   padding:20px;
   border-radius:15px;
+}
+.progress-bar {
+  height:20px;
+  background:#374151;
+  border-radius:10px;
+  margin-top:10px;
+}
+.progress {
+  height:20px;
+  background:#22c55e;
+  border-radius:10px;
+  width:0%;
 }
 .level {
   font-size:22px;
   margin-top:10px;
   color:#22c55e;
 }
+.task {
+  background:#0f172a;
+  padding:10px;
+  margin:10px;
+  border-radius:10px;
+  cursor:pointer;
+}
 </style>
 </head>
 <body>
 
-<h1>🚀 FuturePath AI</h1>
+<h1>🚀 FuturePath AI V2</h1>
 
 <div class="container">
-  <h2>Construis ton plan de réussite</h2>
+
+  <h2>Créer ton profil</h2>
 
   <input type="number" id="age" placeholder="Ton âge">
-
+  
   <select id="goal">
-    <option value="">Objectif principal</option>
+    <option value="">Objectif</option>
     <option value="money">Devenir riche</option>
     <option value="fame">Devenir connu</option>
     <option value="skills">Apprendre des compétences</option>
@@ -67,53 +87,112 @@ button {
     <option value="social">Réseaux sociaux</option>
   </select>
 
-  <button onclick="generatePlan()">Générer mon plan</button>
+  <button onclick="generateProfile()">Créer mon plan</button>
 
-  <div id="result"></div>
+  <div id="output"></div>
+
+  <div class="dashboard" id="dashboard" style="display:none;">
+    <h2>📊 Dashboard</h2>
+    <p id="levelText"></p>
+    <div class="progress-bar">
+      <div class="progress" id="progressBar"></div>
+    </div>
+    <h3>🎯 Missions</h3>
+    <div id="tasks"></div>
+  </div>
+
 </div>
 
 <script>
-function generatePlan() {
+
+let userData = JSON.parse(localStorage.getItem("futurePathUser")) || {
+  xp:0,
+  level:1,
+  tasks:[]
+};
+
+function saveData(){
+  localStorage.setItem("futurePathUser", JSON.stringify(userData));
+}
+
+function generateProfile(){
   const age = document.getElementById("age").value;
   const goal = document.getElementById("goal").value;
   const interest = document.getElementById("interest").value;
-  const result = document.getElementById("result");
 
   if(!age || !goal || !interest){
-    result.innerHTML="<p>Remplis toutes les infos.</p>";
+    alert("Remplis tout.");
     return;
   }
 
-  let plan = "";
-  let level = "";
+  let tasks = [];
 
-  if(goal === "money" && interest === "gaming"){
-    plan = "Apprends Lua pour Roblox, crée 3 mini jeux en 3 mois, poste du contenu sur TikTok.";
-    level = "Niveau : Entrepreneur Gaming 🔥";
+  if(goal==="money" && interest==="gaming"){
+    tasks = [
+      "Apprendre les bases de Lua",
+      "Créer un mini jeu simple",
+      "Publier une vidéo TikTok sur ton projet"
+    ];
   }
 
-  if(goal === "money" && interest === "tech"){
-    plan = "Apprends HTML, CSS, JS. Crée des mini outils web et améliore-les chaque semaine.";
-    level = "Niveau : Builder Tech 💻";
+  if(goal==="money" && interest==="tech"){
+    tasks = [
+      "Apprendre HTML",
+      "Créer un site simple",
+      "Publier ton site sur GitHub"
+    ];
   }
 
-  if(goal === "fame" && interest === "social"){
-    plan = "Lance une chaîne TikTok sur une niche précise et poste 1 vidéo par jour.";
-    level = "Niveau : Creator 🎬";
+  if(goal==="fame" && interest==="social"){
+    tasks = [
+      "Choisir une niche précise",
+      "Poster 7 vidéos en 7 jours",
+      "Analyser les vues"
+    ];
   }
 
-  if(plan === ""){
-    plan = "Commence par apprendre une compétence rare (code, montage, design) et documente ton parcours.";
-    level = "Niveau : Explorateur 🚀";
+  if(tasks.length===0){
+    tasks = [
+      "Apprendre une compétence rare",
+      "Lire 30 min par jour",
+      "Créer un mini projet"
+    ];
   }
 
-  result.innerHTML = `
-    <div class="plan">
-      <p>${plan}</p>
-      <div class="level">${level}</div>
-    </div>
-  `;
+  userData.tasks = tasks;
+  saveData();
+  renderDashboard();
 }
+
+function renderDashboard(){
+  document.getElementById("dashboard").style.display="block";
+  document.getElementById("levelText").innerText =
+    "Niveau " + userData.level + " | XP: " + userData.xp;
+
+  let percent = (userData.xp % 100);
+  document.getElementById("progressBar").style.width = percent + "%";
+
+  const tasksDiv = document.getElementById("tasks");
+  tasksDiv.innerHTML="";
+
+  userData.tasks.forEach((task,index)=>{
+    const div = document.createElement("div");
+    div.className="task";
+    div.innerText=task + " (+20 XP)";
+    div.onclick=()=>{
+      userData.xp += 20;
+      if(userData.xp >= userData.level*100){
+        userData.level++;
+      }
+      saveData();
+      renderDashboard();
+    };
+    tasksDiv.appendChild(div);
+  });
+}
+
+renderDashboard();
+
 </script>
 
 </body>
