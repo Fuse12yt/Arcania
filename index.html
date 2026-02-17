@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>FuturePath AI</title>
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg,#0f172a,#1e293b);
+  color:white;
+  text-align:center;
+  padding:40px;
+}
+.container {
+  max-width:600px;
+  margin:auto;
+  background:#111827;
+  padding:30px;
+  border-radius:20px;
+  box-shadow:0 0 40px rgba(34,197,94,0.3);
+}
+input, select, button {
+  padding:10px;
+  margin:10px;
+  border-radius:10px;
+  border:none;
+  width:80%;
+}
+button {
+  background:#22c55e;
+  color:white;
+  cursor:pointer;
+}
+.plan {
+  margin-top:20px;
+  background:#1e293b;
+  padding:20px;
+  border-radius:15px;
+}
+.level {
+  font-size:22px;
+  margin-top:10px;
+  color:#22c55e;
+}
+</style>
+</head>
+<body>
+
+<h1>🚀 FuturePath AI</h1>
+
+<div class="container">
+  <h2>Construis ton plan de réussite</h2>
+
+  <input type="number" id="age" placeholder="Ton âge">
+
+  <select id="goal">
+    <option value="">Objectif principal</option>
+    <option value="money">Devenir riche</option>
+    <option value="fame">Devenir connu</option>
+    <option value="skills">Apprendre des compétences</option>
+  </select>
+
+  <select id="interest">
+    <option value="">Ce que tu aimes</option>
+    <option value="gaming">Gaming</option>
+    <option value="tech">Technologie</option>
+    <option value="social">Réseaux sociaux</option>
+  </select>
+
+  <button onclick="generatePlan()">Générer mon plan</button>
+
+  <div id="result"></div>
+</div>
+
+<script>
+function generatePlan() {
+  const age = document.getElementById("age").value;
+  const goal = document.getElementById("goal").value;
+  const interest = document.getElementById("interest").value;
+  const result = document.getElementById("result");
+
+  if(!age || !goal || !interest){
+    result.innerHTML="<p>Remplis toutes les infos.</p>";
+    return;
+  }
+
+  let plan = "";
+  let level = "";
+
+  if(goal === "money" && interest === "gaming"){
+    plan = "Apprends Lua pour Roblox, crée 3 mini jeux en 3 mois, poste du contenu sur TikTok.";
+    level = "Niveau : Entrepreneur Gaming 🔥";
+  }
+
+  if(goal === "money" && interest === "tech"){
+    plan = "Apprends HTML, CSS, JS. Crée des mini outils web et améliore-les chaque semaine.";
+    level = "Niveau : Builder Tech 💻";
+  }
+
+  if(goal === "fame" && interest === "social"){
+    plan = "Lance une chaîne TikTok sur une niche précise et poste 1 vidéo par jour.";
+    level = "Niveau : Creator 🎬";
+  }
+
+  if(plan === ""){
+    plan = "Commence par apprendre une compétence rare (code, montage, design) et documente ton parcours.";
+    level = "Niveau : Explorateur 🚀";
+  }
+
+  result.innerHTML = `
+    <div class="plan">
+      <p>${plan}</p>
+      <div class="level">${level}</div>
+    </div>
+  `;
+}
+</script>
+
+</body>
+</html>
