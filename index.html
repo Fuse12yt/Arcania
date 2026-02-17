@@ -2,115 +2,116 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>FuturePath AI V5</title>
+<title>FuturePath AI V1000</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body{
-  font-family:Arial;
-  background:linear-gradient(135deg,#0f172a,#1e293b);
-  color:white;
-  text-align:center;
-  padding:30px;
+font-family:Arial;
+background:linear-gradient(135deg,#0f172a,#1e293b);
+color:white;
+text-align:center;
+padding:20px;
 }
 .container{
-  max-width:800px;
-  margin:auto;
-  background:#111827;
-  padding:30px;
-  border-radius:20px;
-  box-shadow:0 0 40px rgba(34,197,94,0.3);
+max-width:1000px;
+margin:auto;
+background:#111827;
+padding:25px;
+border-radius:20px;
+box-shadow:0 0 40px rgba(34,197,94,0.3);
 }
 button,input,select{
-  padding:10px;
-  margin:8px;
-  border-radius:10px;
-  border:none;
+padding:8px;
+margin:5px;
+border-radius:8px;
+border:none;
 }
 button{
-  background:#22c55e;
-  color:white;
-  cursor:pointer;
+background:#22c55e;
+color:white;
+cursor:pointer;
 }
 .card{
-  background:#1e293b;
-  padding:20px;
-  margin-top:20px;
-  border-radius:15px;
+background:#1e293b;
+padding:20px;
+margin-top:15px;
+border-radius:15px;
 }
 .progress-bar{
-  height:20px;
-  background:#374151;
-  border-radius:10px;
-  margin-top:10px;
+height:20px;
+background:#374151;
+border-radius:10px;
+margin-top:10px;
 }
 .progress{
-  height:20px;
-  background:#22c55e;
-  border-radius:10px;
-  width:0%;
+height:20px;
+background:#22c55e;
+border-radius:10px;
+width:0%;
 }
 .task{
-  background:#0f172a;
-  padding:10px;
-  margin:10px;
-  border-radius:10px;
-  cursor:pointer;
+background:#0f172a;
+padding:10px;
+margin:8px;
+border-radius:10px;
+cursor:pointer;
 }
 .badge{
-  display:inline-block;
-  padding:6px 10px;
-  margin:5px;
-  background:#22c55e;
-  border-radius:10px;
-  font-size:12px;
+display:inline-block;
+background:#22c55e;
+padding:5px 10px;
+margin:5px;
+border-radius:8px;
+font-size:12px;
 }
-.reset{
-  background:#ef4444;
+.danger{
+background:#ef4444;
 }
 </style>
 </head>
 <body>
 
-<h1>🚀 FuturePath AI V5</h1>
+<h1>🚀 FuturePath AI V1000</h1>
 
 <div class="container">
 
-<h2>Créer ton profil</h2>
-
-<input type="number" id="age" placeholder="Ton âge">
-
+<h2>Créer ton Profil</h2>
+<input type="text" id="username" placeholder="Pseudo">
+<input type="number" id="age" placeholder="Âge">
 <select id="goal">
 <option value="">Objectif</option>
-<option value="money">Devenir riche</option>
-<option value="fame">Devenir connu</option>
-<option value="skills">Apprendre des compétences</option>
+<option value="money">Argent</option>
+<option value="fame">Notoriété</option>
+<option value="skills">Compétences</option>
 </select>
+<button onclick="init()">Lancer</button>
+<button class="danger" onclick="reset()">Reset</button>
 
-<select id="interest">
-<option value="">Intérêt</option>
-<option value="gaming">Gaming</option>
-<option value="tech">Tech</option>
-<option value="social">Réseaux</option>
-</select>
-
-<button onclick="createProfile()">Créer</button>
-
-<button class="reset" onclick="resetData()">Reset</button>
-
-<div id="dashboard" style="display:none;">
+<div id="app" style="display:none;">
 
 <div class="card">
-<h2 id="classType"></h2>
+<h2 id="welcome"></h2>
 <p id="levelInfo"></p>
-<p>🔥 Streak: <span id="streak"></span> jours</p>
-
+<p>🔥 Streak: <span id="streak"></span></p>
 <div class="progress-bar">
 <div class="progress" id="progressBar"></div>
 </div>
 </div>
 
 <div class="card">
-<h3>🎯 Missions du jour</h3>
+<h3>🎯 Missions</h3>
 <div id="tasks"></div>
+</div>
+
+<div class="card">
+<h3>⏳ Focus Timer</h3>
+<button onclick="startTimer()">25 min Focus</button>
+<p id="timer"></p>
+</div>
+
+<div class="card">
+<h3>📈 Progression</h3>
+<canvas id="xpChart"></canvas>
 </div>
 
 <div class="card">
@@ -118,54 +119,58 @@ button{
 <div id="badges"></div>
 </div>
 
+<div class="card">
+<h3>💡 Suggestion IA</h3>
+<p id="aiAdvice"></p>
 </div>
 
+</div>
 </div>
 
 <script>
 
-let data = JSON.parse(localStorage.getItem("fpData")) || {
+let data = JSON.parse(localStorage.getItem("v1000")) || {
+username:"",
 xp:0,
 level:1,
 streak:0,
 lastLogin:null,
-class:"",
 badges:[],
+history:[],
 tasks:[]
 };
 
 function save(){
-localStorage.setItem("fpData",JSON.stringify(data));
+localStorage.setItem("v1000",JSON.stringify(data));
 }
 
-function createProfile(){
-const age=document.getElementById("age").value;
-const goal=document.getElementById("goal").value;
-const interest=document.getElementById("interest").value;
+function init(){
+let name=document.getElementById("username").value;
+let age=document.getElementById("age").value;
+let goal=document.getElementById("goal").value;
+if(!name||!age||!goal){alert("Remplis tout");return;}
 
-if(!age||!goal||!interest){alert("Remplis tout");return;}
-
-if(goal==="money"&&interest==="tech") data.class="💻 Builder";
-else if(goal==="money"&&interest==="gaming") data.class="🎮 Game Creator";
-else if(goal==="fame") data.class="🎬 Creator";
-else data.class="🚀 Explorer";
-
-generateDailyTasks();
+data.username=name;
+generateTasks(goal);
 updateStreak();
 save();
 render();
 }
 
-function generateDailyTasks(){
-data.tasks=[
-"Travailler 30 min sur ton projet",
-"Apprendre 1 nouvelle chose",
-"Noter ton objectif principal"
-];
+function generateTasks(goal){
+if(goal==="money"){
+data.tasks=["Coder 30min","Lire business","Analyser marché"];
+}
+else if(goal==="fame"){
+data.tasks=["Poster contenu","Analyser stats","Améliorer branding"];
+}
+else{
+data.tasks=["Apprendre skill","Créer mini projet","Documenter progrès"];
+}
 }
 
 function updateStreak(){
-const today=new Date().toDateString();
+let today=new Date().toDateString();
 if(data.lastLogin!==today){
 data.streak++;
 data.lastLogin=today;
@@ -173,7 +178,8 @@ data.lastLogin=today;
 }
 
 function completeTask(){
-data.xp+=25;
+data.xp+=20;
+data.history.push(data.xp);
 if(data.xp>=data.level*100){
 data.level++;
 unlockBadge();
@@ -183,55 +189,99 @@ render();
 }
 
 function unlockBadge(){
-if(data.level===3&&!data.badges.includes("Rising Star")){
-data.badges.push("Rising Star");
+if(data.level===3&&!data.badges.includes("Rising")){
+data.badges.push("Rising");
 }
-if(data.level===5&&!data.badges.includes("Disciplined")){
-data.badges.push("Disciplined");
+if(data.level===5&&!data.badges.includes("Elite")){
+data.badges.push("Elite");
+}
+if(data.streak>=7&&!data.badges.includes("Discipline")){
+data.badges.push("Discipline");
 }
 }
 
 function render(){
-document.getElementById("dashboard").style.display="block";
-
-document.getElementById("classType").innerText="Classe: "+data.class;
+document.getElementById("app").style.display="block";
+document.getElementById("welcome").innerText=
+"Bienvenue "+data.username;
 document.getElementById("levelInfo").innerText=
 "Niveau "+data.level+" | XP "+data.xp;
-
 document.getElementById("streak").innerText=data.streak;
-
 document.getElementById("progressBar").style.width=
 (data.xp%100)+"%";
 
-let tasksDiv=document.getElementById("tasks");
-tasksDiv.innerHTML="";
+let tDiv=document.getElementById("tasks");
+tDiv.innerHTML="";
 data.tasks.forEach(t=>{
-let div=document.createElement("div");
-div.className="task";
-div.innerText=t+" (+25 XP)";
-div.onclick=completeTask;
-tasksDiv.appendChild(div);
+let d=document.createElement("div");
+d.className="task";
+d.innerText=t+" (+20 XP)";
+d.onclick=completeTask;
+tDiv.appendChild(d);
 });
 
-let badgeDiv=document.getElementById("badges");
-badgeDiv.innerHTML="";
+let bDiv=document.getElementById("badges");
+bDiv.innerHTML="";
 data.badges.forEach(b=>{
-let span=document.createElement("span");
-span.className="badge";
-span.innerText=b;
-badgeDiv.appendChild(span);
+let s=document.createElement("span");
+s.className="badge";
+s.innerText=b;
+bDiv.appendChild(s);
+});
+
+generateAIAdvice();
+drawChart();
+}
+
+function generateAIAdvice(){
+let advice="";
+if(data.level<3) advice="Concentre-toi sur la discipline quotidienne.";
+else if(data.level<6) advice="Augmente la difficulté de tes projets.";
+else advice="Commence à construire quelque chose de public.";
+document.getElementById("aiAdvice").innerText=advice;
+}
+
+function startTimer(){
+let time=1500;
+let display=document.getElementById("timer");
+let interval=setInterval(()=>{
+let min=Math.floor(time/60);
+let sec=time%60;
+display.innerText=min+":"+sec;
+time--;
+if(time<0){
+clearInterval(interval);
+data.xp+=30;
+save();
+render();
+}
+},1000);
+}
+
+function drawChart(){
+let ctx=document.getElementById("xpChart");
+new Chart(ctx,{
+type:"line",
+data:{
+labels:data.history.map((_,i)=>i+1),
+datasets:[{
+label:"XP",
+data:data.history,
+borderColor:"#22c55e",
+fill:false
+}]
+}
 });
 }
 
-function resetData(){
-localStorage.removeItem("fpData");
+function reset(){
+localStorage.removeItem("v1000");
 location.reload();
 }
 
 render();
 
 </script>
-
 </body>
 </html>
 
