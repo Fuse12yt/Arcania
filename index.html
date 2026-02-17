@@ -2,198 +2,236 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>FuturePath AI V2</title>
+<title>FuturePath AI V5</title>
 <style>
-body {
-  font-family: Arial;
-  background: linear-gradient(135deg,#0f172a,#1e293b);
+body{
+  font-family:Arial;
+  background:linear-gradient(135deg,#0f172a,#1e293b);
   color:white;
   text-align:center;
   padding:30px;
 }
-.container {
-  max-width:700px;
+.container{
+  max-width:800px;
   margin:auto;
   background:#111827;
   padding:30px;
   border-radius:20px;
   box-shadow:0 0 40px rgba(34,197,94,0.3);
 }
-input, select, button {
+button,input,select{
   padding:10px;
-  margin:10px;
+  margin:8px;
   border-radius:10px;
   border:none;
-  width:80%;
 }
-button {
+button{
   background:#22c55e;
   color:white;
   cursor:pointer;
 }
-.dashboard {
-  margin-top:30px;
+.card{
   background:#1e293b;
   padding:20px;
+  margin-top:20px;
   border-radius:15px;
 }
-.progress-bar {
+.progress-bar{
   height:20px;
   background:#374151;
   border-radius:10px;
   margin-top:10px;
 }
-.progress {
+.progress{
   height:20px;
   background:#22c55e;
   border-radius:10px;
   width:0%;
 }
-.level {
-  font-size:22px;
-  margin-top:10px;
-  color:#22c55e;
-}
-.task {
+.task{
   background:#0f172a;
   padding:10px;
   margin:10px;
   border-radius:10px;
   cursor:pointer;
 }
+.badge{
+  display:inline-block;
+  padding:6px 10px;
+  margin:5px;
+  background:#22c55e;
+  border-radius:10px;
+  font-size:12px;
+}
+.reset{
+  background:#ef4444;
+}
 </style>
 </head>
 <body>
 
-<h1>🚀 FuturePath AI V2</h1>
+<h1>🚀 FuturePath AI V5</h1>
 
 <div class="container">
 
-  <h2>Créer ton profil</h2>
+<h2>Créer ton profil</h2>
 
-  <input type="number" id="age" placeholder="Ton âge">
-  
-  <select id="goal">
-    <option value="">Objectif</option>
-    <option value="money">Devenir riche</option>
-    <option value="fame">Devenir connu</option>
-    <option value="skills">Apprendre des compétences</option>
-  </select>
+<input type="number" id="age" placeholder="Ton âge">
 
-  <select id="interest">
-    <option value="">Ce que tu aimes</option>
-    <option value="gaming">Gaming</option>
-    <option value="tech">Technologie</option>
-    <option value="social">Réseaux sociaux</option>
-  </select>
+<select id="goal">
+<option value="">Objectif</option>
+<option value="money">Devenir riche</option>
+<option value="fame">Devenir connu</option>
+<option value="skills">Apprendre des compétences</option>
+</select>
 
-  <button onclick="generateProfile()">Créer mon plan</button>
+<select id="interest">
+<option value="">Intérêt</option>
+<option value="gaming">Gaming</option>
+<option value="tech">Tech</option>
+<option value="social">Réseaux</option>
+</select>
 
-  <div id="output"></div>
+<button onclick="createProfile()">Créer</button>
 
-  <div class="dashboard" id="dashboard" style="display:none;">
-    <h2>📊 Dashboard</h2>
-    <p id="levelText"></p>
-    <div class="progress-bar">
-      <div class="progress" id="progressBar"></div>
-    </div>
-    <h3>🎯 Missions</h3>
-    <div id="tasks"></div>
-  </div>
+<button class="reset" onclick="resetData()">Reset</button>
+
+<div id="dashboard" style="display:none;">
+
+<div class="card">
+<h2 id="classType"></h2>
+<p id="levelInfo"></p>
+<p>🔥 Streak: <span id="streak"></span> jours</p>
+
+<div class="progress-bar">
+<div class="progress" id="progressBar"></div>
+</div>
+</div>
+
+<div class="card">
+<h3>🎯 Missions du jour</h3>
+<div id="tasks"></div>
+</div>
+
+<div class="card">
+<h3>🏆 Badges</h3>
+<div id="badges"></div>
+</div>
+
+</div>
 
 </div>
 
 <script>
 
-let userData = JSON.parse(localStorage.getItem("futurePathUser")) || {
-  xp:0,
-  level:1,
-  tasks:[]
+let data = JSON.parse(localStorage.getItem("fpData")) || {
+xp:0,
+level:1,
+streak:0,
+lastLogin:null,
+class:"",
+badges:[],
+tasks:[]
 };
 
-function saveData(){
-  localStorage.setItem("futurePathUser", JSON.stringify(userData));
+function save(){
+localStorage.setItem("fpData",JSON.stringify(data));
 }
 
-function generateProfile(){
-  const age = document.getElementById("age").value;
-  const goal = document.getElementById("goal").value;
-  const interest = document.getElementById("interest").value;
+function createProfile(){
+const age=document.getElementById("age").value;
+const goal=document.getElementById("goal").value;
+const interest=document.getElementById("interest").value;
 
-  if(!age || !goal || !interest){
-    alert("Remplis tout.");
-    return;
-  }
+if(!age||!goal||!interest){alert("Remplis tout");return;}
 
-  let tasks = [];
+if(goal==="money"&&interest==="tech") data.class="💻 Builder";
+else if(goal==="money"&&interest==="gaming") data.class="🎮 Game Creator";
+else if(goal==="fame") data.class="🎬 Creator";
+else data.class="🚀 Explorer";
 
-  if(goal==="money" && interest==="gaming"){
-    tasks = [
-      "Apprendre les bases de Lua",
-      "Créer un mini jeu simple",
-      "Publier une vidéo TikTok sur ton projet"
-    ];
-  }
-
-  if(goal==="money" && interest==="tech"){
-    tasks = [
-      "Apprendre HTML",
-      "Créer un site simple",
-      "Publier ton site sur GitHub"
-    ];
-  }
-
-  if(goal==="fame" && interest==="social"){
-    tasks = [
-      "Choisir une niche précise",
-      "Poster 7 vidéos en 7 jours",
-      "Analyser les vues"
-    ];
-  }
-
-  if(tasks.length===0){
-    tasks = [
-      "Apprendre une compétence rare",
-      "Lire 30 min par jour",
-      "Créer un mini projet"
-    ];
-  }
-
-  userData.tasks = tasks;
-  saveData();
-  renderDashboard();
+generateDailyTasks();
+updateStreak();
+save();
+render();
 }
 
-function renderDashboard(){
-  document.getElementById("dashboard").style.display="block";
-  document.getElementById("levelText").innerText =
-    "Niveau " + userData.level + " | XP: " + userData.xp;
-
-  let percent = (userData.xp % 100);
-  document.getElementById("progressBar").style.width = percent + "%";
-
-  const tasksDiv = document.getElementById("tasks");
-  tasksDiv.innerHTML="";
-
-  userData.tasks.forEach((task,index)=>{
-    const div = document.createElement("div");
-    div.className="task";
-    div.innerText=task + " (+20 XP)";
-    div.onclick=()=>{
-      userData.xp += 20;
-      if(userData.xp >= userData.level*100){
-        userData.level++;
-      }
-      saveData();
-      renderDashboard();
-    };
-    tasksDiv.appendChild(div);
-  });
+function generateDailyTasks(){
+data.tasks=[
+"Travailler 30 min sur ton projet",
+"Apprendre 1 nouvelle chose",
+"Noter ton objectif principal"
+];
 }
 
-renderDashboard();
+function updateStreak(){
+const today=new Date().toDateString();
+if(data.lastLogin!==today){
+data.streak++;
+data.lastLogin=today;
+}
+}
+
+function completeTask(){
+data.xp+=25;
+if(data.xp>=data.level*100){
+data.level++;
+unlockBadge();
+}
+save();
+render();
+}
+
+function unlockBadge(){
+if(data.level===3&&!data.badges.includes("Rising Star")){
+data.badges.push("Rising Star");
+}
+if(data.level===5&&!data.badges.includes("Disciplined")){
+data.badges.push("Disciplined");
+}
+}
+
+function render(){
+document.getElementById("dashboard").style.display="block";
+
+document.getElementById("classType").innerText="Classe: "+data.class;
+document.getElementById("levelInfo").innerText=
+"Niveau "+data.level+" | XP "+data.xp;
+
+document.getElementById("streak").innerText=data.streak;
+
+document.getElementById("progressBar").style.width=
+(data.xp%100)+"%";
+
+let tasksDiv=document.getElementById("tasks");
+tasksDiv.innerHTML="";
+data.tasks.forEach(t=>{
+let div=document.createElement("div");
+div.className="task";
+div.innerText=t+" (+25 XP)";
+div.onclick=completeTask;
+tasksDiv.appendChild(div);
+});
+
+let badgeDiv=document.getElementById("badges");
+badgeDiv.innerHTML="";
+data.badges.forEach(b=>{
+let span=document.createElement("span");
+span.className="badge";
+span.innerText=b;
+badgeDiv.appendChild(span);
+});
+}
+
+function resetData(){
+localStorage.removeItem("fpData");
+location.reload();
+}
+
+render();
 
 </script>
 
 </body>
 </html>
+
